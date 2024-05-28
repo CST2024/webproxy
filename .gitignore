@@ -1,0 +1,7 @@
+.env
+webproxy
+server.crt
+server.key
+server.csr
+ca.crt
+logs/*
