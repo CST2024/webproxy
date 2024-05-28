@@ -28,4 +28,4 @@ jobs:
           docker buildx build \
             --push \
             --platform linux/arm/v7,linux/amd64 \
-            -t ghcr.io/CST2024/webproxy:${{ github.sha }} .
+            -t ghcr.io/cst2024/webproxy:${{ github.sha }} .
