@@ -3,7 +3,7 @@ module webproxy
 go 1.19
 
 require (
-	github.com/elazarl/goproxy v0.0.0-20221015165544-a0805db90819
+	github.com/elazarl/goproxy v0.0.0-20231117061959-7cc037d33fb5
 	github.com/go-sql-driver/mysql v1.7.0
 )
 
