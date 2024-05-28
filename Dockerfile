@@ -1,10 +1,10 @@
 FROM golang:alpine
 
-COPY . /app
 WORKDIR /app
+COPY . /app
 
-RUN go build -o main
+RUN go build -o /app/main
 
 EXPOSE 8000
 
-CMD ["./main"]
+CMD ["/app/main"]
