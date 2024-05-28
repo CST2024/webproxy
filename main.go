@@ -13,9 +13,21 @@ import (
 	"strings"
 	"time"
 
+	"github.com/comail/colog"
 	"github.com/elazarl/goproxy"
 	"github.com/joho/godotenv"
 )
+
+func init() {
+	// log出力設定
+	colog.SetDefaultLevel(colog.LDebug)
+	colog.SetMinLevel(colog.LTrace)
+	colog.SetFormatter(&colog.StdFormatter{
+		Colors: true,
+		Flag:   log.Ldate | log.Ltime,
+	})
+	colog.Register()
+}
 
 var rejects = []string{}
 
@@ -24,15 +36,19 @@ func main() {
 	godotenv.Load(".env")
 
 	REDIRECT_TO := os.Getenv("REDIRECT_TO")
-	fmt.Println("Redirect to : ", REDIRECT_TO)
+	if REDIRECT_TO == "" {
+		log.Println("warn: REDIRECT_TO not specified")
+	} else {
+		log.Println("info: Redirect to : ", REDIRECT_TO)
+	}
 
 	// CAの設定を行う
 	goproxyCa, err := tls.X509KeyPair(caCert, caKey)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln("error:", err)
 	}
 	if goproxyCa.Leaf, err = x509.ParseCertificate(goproxyCa.Certificate[0]); err != nil {
-		log.Fatal(err)
+		log.Fatalln("error:", err)
 	}
 	goproxy.GoproxyCa = goproxyCa
 	goproxy.OkConnect = &goproxy.ConnectAction{Action: goproxy.ConnectAccept, TLSConfig: goproxy.TLSConfigFromCA(&goproxyCa)}
@@ -51,12 +67,12 @@ func main() {
 	// ログディレクトリの作成
 	err = os.Mkdir("./logs", 0770)
 	if err != nil && !os.IsExist(err) {
-		log.Fatal(err)
+		log.Fatalln("error:", err)
 	}
 	// ログを書き込むためのファイルを作成
 	f, err := os.Create("./logs/latest.log")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln("error:", err)
 	}
 	defer f.Close()
 	defer os.Rename("./logs/latest.log", fmt.Sprintf("./logs/%d.log", time.Now().Unix()))
@@ -65,16 +81,16 @@ func main() {
 	LC_ADDRESS := os.Getenv("LC_ADDRESS")
 
 	if LC_ADDRESS == "" {
-		log.Fatal("ログ収集サーバーが指定されていません")
+		log.Fatal("error: ログ収集サーバーが指定されていません")
 	}
 
 	serverAddr, err := net.ResolveTCPAddr("tcp", LC_ADDRESS)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln("error:", err)
 	}
 	conn, err := net.DialTCP("tcp", nil, serverAddr)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln("error:", err)
 	}
 
 	defer conn.Close()
@@ -125,7 +141,7 @@ func main() {
 	})
 
 	// エラーがあった場合は出力して終了
-	log.Fatal(http.ListenAndServe(":8000", proxy))
+	log.Fatalln("info:", http.ListenAndServe(":8000", proxy))
 
 }
 
@@ -135,7 +151,7 @@ func handleConnection(conn net.Conn) {
 	for {
 		messageLength, err := conn.Read(buff)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatalln("error:", err)
 		}
 		message := string(buff[:messageLength])
 

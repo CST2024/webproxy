@@ -37,19 +37,19 @@ func NewCertStorage() *CertStorage {
 func CAFileOepn() []byte {
 	file, err := os.Open("./ca.crt")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln("error:", err)
 	}
 	defer file.Close()
 
 	fileInfo, err := file.Stat()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln("error:", err)
 	}
 
 	buffer := make([]byte, fileInfo.Size())
 	_, err = file.Read(buffer)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln("error:", err)
 	}
 	return buffer
 }
@@ -57,13 +57,13 @@ func CAFileOepn() []byte {
 func PrivateKeyFileOepn() []byte {
 	file, err := os.Open("./server.key")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln("error:", err)
 	}
 	defer file.Close()
 
 	fileInfo, err := file.Stat()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln("error:", err)
 	}
 
 	buffer := make([]byte, fileInfo.Size())
